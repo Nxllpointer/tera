@@ -181,6 +181,9 @@ impl Tera {
         // See https://github.com/Keats/tera/issues/574 for the Tera discussion
         // and https://github.com/Gilnaa/globwalk/issues/28 for the upstream issue.
         let (parent_dir, glob_end) = glob.split_at(glob.find('*').unwrap());
+        dbg!(&glob);
+        dbg!(&parent_dir);
+        dbg!(&glob_end);
         let parent_dir = match std::fs::canonicalize(parent_dir) {
             Ok(d) => d,
             // If canonicalize fails, just abort it and resume with the given path.
@@ -188,7 +191,9 @@ impl Tera {
             // See https://github.com/Keats/tera/issues/819#issuecomment-1480392230
             Err(_) => std::path::PathBuf::from(parent_dir),
         };
+        dbg!(&parent_dir);
         let dir = parent_dir.join(glob_end).into_os_string().into_string().unwrap();
+        dbg!(&dir);
 
         // We are parsing all the templates on instantiation
         for entry in glob_builder(&dir)
@@ -198,6 +203,7 @@ impl Tera {
             .filter_map(std::result::Result::ok)
         {
             let mut path = entry.into_path();
+            dbg!(&path);
             // We only care about actual files
             if path.is_file() {
                 if path.starts_with("./") {
@@ -210,6 +216,8 @@ impl Tera {
                     .to_string_lossy()
                     // unify on forward slash
                     .replace('\\', "/");
+
+                dbg!(&filepath);
 
                 if let Err(e) = self.add_file(Some(&filepath), path) {
                     use std::error::Error;
